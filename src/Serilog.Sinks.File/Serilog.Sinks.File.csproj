@@ -4,7 +4,8 @@
     <Description>Write Serilog events to text files in plain or JSON format.</Description>
     <VersionPrefix>4.0.1</VersionPrefix>
     <Authors>Serilog Contributors</Authors>
-    <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
+    <TargetFramework>net45</TargetFramework>
+    <!-- <TargetFrameworks>net45;netstandard1.3</TargetFrameworks> -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Serilog.Sinks.File</AssemblyName>
     <AssemblyOriginatorKeyFile>../../assets/Serilog.snk</AssemblyOriginatorKeyFile>
@@ -37,7 +38,7 @@
     <DefineConstants>$(DefineConstants);ATOMIC_APPEND;HRESULTS</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+<!--   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);OS_MUTEX</DefineConstants>
   </PropertyGroup>
 
@@ -50,5 +51,5 @@
     <PackageReference Include="System.Threading" Version="4.0.11" />
     <PackageReference Include="System.Runtime.InteropServices" Version="4.1.0" />
   </ItemGroup>
-
+ -->
 </Project>

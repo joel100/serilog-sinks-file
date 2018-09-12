@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Serilog.Core;
 using Serilog.Debugging;
 using Serilog.Events;
@@ -35,6 +36,8 @@ namespace Serilog.Sinks.File
         readonly bool _buffered;
         readonly bool _shared;
         readonly bool _rollOnFileSizeLimit;
+        readonly Thread _rollerThread;
+        readonly AutoResetEvent _resetEvent = new AutoResetEvent(false);
 
         readonly object _syncRoot = new object();
         bool _isDisposed;
@@ -64,6 +67,25 @@ namespace Serilog.Sinks.File
             _buffered = buffered;
             _shared = shared;
             _rollOnFileSizeLimit = rollOnFileSizeLimit;
+
+            _rollerThread = new Thread(Watch);
+            _rollerThread.Start();
+        }
+
+        private void Watch()
+        {
+            while (!_isDisposed)
+            {
+                lock (_syncRoot)
+                {
+                    AlignCurrentFileTo(Clock.DateTimeNow);
+                }
+
+                var sleepTime = (_nextCheckpoint ?? DateTime.Now.AddMinutes(30)) - DateTime.Now;
+
+                if (sleepTime.Seconds > 0)
+                    _resetEvent.WaitOne(sleepTime);
+            }
         }
 
         public void Emit(LogEvent logEvent)
@@ -208,6 +230,7 @@ namespace Serilog.Sinks.File
                 if (_currentFile == null) return;
                 CloseFile();
                 _isDisposed = true;
+                _resetEvent.Set();
             }
         }
 
